@@ -6,28 +6,22 @@ from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
-# Allow CORS for all origins (you can restrict this in production)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, use your frontend URL
+    allow_origins=["*"],  # Replace with frontend domain in production
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Mistral 7B Instruct model from Hugging Face
-API_URL = "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.1"
-API_TOKEN = os.environ.get("HUGGING_FACE_API_KEY")
+GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
+GROQ_MODEL = "mixtral-8x7b-32768"  # Also try "llama3-8b-8192" or "gemma-7b-it"
+GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
 
-headers = {"Authorization": f"Bearer {API_TOKEN}"}
-
-def query_huggingface(payload):
-    try:
-        response = requests.post(API_URL, headers=headers, json=payload, timeout=60)
-        response.raise_for_status()
-        return response.json()
-    except requests.exceptions.RequestException as e:
-        return [{"generated_text": f"Error contacting model: {e}"}]
+HEADERS = {
+    "Authorization": f"Bearer {GROQ_API_KEY}",
+    "Content-Type": "application/json"
+}
 
 class ChatRequest(BaseModel):
     message: str
@@ -36,24 +30,28 @@ class ChatRequest(BaseModel):
 
 @app.post("/chat")
 def chat(request: ChatRequest):
-    # Format prompt
-    persona_prompt = f"You are a helpful assistant with the persona: {request.persona}.\n"
-    history_str = "\n".join(request.history)
-    full_prompt = f"{persona_prompt}{history_str}\nUser: {request.message}\nAssistant:"
+    # Build the chat history
+    messages = [
+        {"role": "system", "content": f"You are a helpful assistant with the persona of a {request.persona}."}
+    ]
+    
+    for turn in request.history:
+        messages.append({"role": "user", "content": turn})
+    
+    messages.append({"role": "user", "content": request.message})
 
-    # Send to Hugging Face model
-    output = query_huggingface({
-        "inputs": full_prompt,
-        "parameters": {
-            "max_new_tokens": 150,
-            "temperature": 0.7,
-            "do_sample": True,
-            "top_p": 0.95
-        }
-    })
+    payload = {
+        "model": GROQ_MODEL,
+        "messages": messages,
+        "temperature": 0.7,
+        "max_tokens": 300
+    }
 
-    # Parse response
-    generated_text = output[0].get("generated_text", "")
-    response_text = generated_text.split("Assistant:")[-1].strip()
-
-    return {"response": response_text}
+    try:
+        response = requests.post(GROQ_API_URL, headers=HEADERS, json=payload)
+        response.raise_for_status()
+        data = response.json()
+        reply = data["choices"][0]["message"]["content"].strip()
+        return {"response": reply}
+    except Exception as e:
+        return {"response": f"Error contacting Groq API: {e}"}
