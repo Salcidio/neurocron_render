@@ -15,7 +15,7 @@ app.add_middleware(
 )
 
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
-GROQ_MODEL = "mixtral-8x7b-32768"  # Also try "llama3-8b-8192" or "gemma-7b-it"
+GROQ_MODEL = "llama3-8b-8192" #"mixtral-8x7b-32768"  Also try "gemma-7b-it"
 GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
 
 HEADERS = {
