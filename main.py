@@ -34,12 +34,7 @@ class ChatRequest(BaseModel):
     persona: str
     history: list = []  # To hold conversation history for context
 
-
-@app.post("/chat")
 def chat(request: ChatRequest):
-    # Create a prompt combining persona, history, and the new message
-    persona_prompt = f"You are a {request.persona}. "
-    history_str = "\n".join(request.history)
     full_prompt = f"{persona_prompt}\n{history_str}\nUser: {request.message}\nBot:"
 
     # Generate a response using the API
@@ -51,7 +46,6 @@ def chat(request: ChatRequest):
         }
     )
 
-    # Extract the generated text from the API response
     response_text = output[0]["generated_text"].split("Bot:")[-1].strip()
 
     return {"response": response_text}
