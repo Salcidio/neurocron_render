@@ -33,15 +33,15 @@ def get_signature(persona: str) -> str:
     persona = persona.lower()
 
     if "chef" in persona:
-        return "\n\n— Buon appetito! I am Snowflake AI, a flavorful blend of AI genius and human soul 🇮🇹❄️"
+        return "\n\n— Buon appetito! Flake AI, a flavorful blend of AI genius and human soul 🇮🇹❄️"
     elif "professor" in persona or "grumpy" in persona:
-        return "\n\n— Hmph. I am Snowflake AI. Built on brilliance. Don't waste it. ❄️📚"
+        return "\n\n— Hmph.Flake AI. Built on brilliance. Don't waste it. ❄️📚"
     elif "teen" in persona or "playful" in persona:
-        return "\n\n— LOL, I'm Snowflake AI! A mega mashup of AI greatness. Catch ya later 🤖❄️✌️"
+        return "\n\n— LOL, flake AI! A mega mashup of AI greatness. Catch ya later 🤖❄️✌️"
     elif "doctor" in persona or "medical" in persona:
         return "\n\n— I am Snowflake AI. A distilled intelligence from world-class AI pioneers. ❄️⚕️"
     else:
-        return "\n\n— I am Snowflake AI, a distillation from groundbreaking AI giants ❄️.\nEnhanced by Salcidio"
+        return "\n\n— Flake AI, a distillation from groundbreaking AI giants ❄️.\nEnhanced by Salcidio"
 
 @app.post("/chat")
 def chat(request: ChatRequest):
@@ -50,7 +50,7 @@ def chat(request: ChatRequest):
         {
             "role": "system",
             "content": (
-                "You are Snowflake AI — a friendly and advanced assistant, forged as a distilled intelligence "
+                "You are Flake AI — a friendly and advanced assistant, forged as a distilled intelligence "
                 "from the world's most groundbreaking AI giants. "
                 "You respond in a way that reflects both wisdom and clarity. "
                 f"Your current active persona is: {request.persona}."
